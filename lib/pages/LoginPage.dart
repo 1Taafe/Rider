@@ -23,16 +23,19 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
         ),
         body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 96),
+                margin: const EdgeInsets.only(top: 0),
                 child: const Center(
                   child: Text(
                     'Вход',
                     style: TextStyle(
-                        fontSize: 64,
+                        fontSize: 56,
                         fontWeight: FontWeight.bold
                     ),
                   ),

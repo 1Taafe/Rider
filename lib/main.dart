@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rider/pages/LoginPage.dart';
 import 'package:rider/pages/RegisterPage.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(

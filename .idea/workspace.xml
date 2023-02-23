@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="822d7458-54b3-4874-b44b-ca447dbee89c" name="Changes" comment="Init">
-      <change afterPath="$PROJECT_DIR$/lib/pages/LoginPage.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/pages/RegisterPage.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+    <list default="true" id="822d7458-54b3-4874-b44b-ca447dbee89c" name="Changes" comment="Changes:&#10;-added login page&#10;-added register page&#10;-added register query">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/LoginPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/LoginPage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/pages/RegisterPage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/pages/RegisterPage.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +65,14 @@
       <option name="presentableId" value="Default" />
       <updated>1677013692626</updated>
     </task>
+    <task id="LOCAL-00001" summary="Changes:&#10;-added login page&#10;-added register page&#10;-added register query">
+      <created>1677145476046</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1677145476046</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -87,6 +91,7 @@
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
     <MESSAGE value="Init" />
-    <option name="LAST_COMMIT_MESSAGE" value="Init" />
+    <MESSAGE value="Changes:&#10;-added login page&#10;-added register page&#10;-added register query" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes:&#10;-added login page&#10;-added register page&#10;-added register query" />
   </component>
 </project>

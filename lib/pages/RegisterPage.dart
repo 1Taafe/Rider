@@ -42,16 +42,19 @@ class RegisterPageState extends State<RegisterPage>{
     return Scaffold(
         appBar: AppBar(
           title: const Text("Rider"),
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
         ),
         body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  margin: const EdgeInsets.only(top: 96),
+                  margin: const EdgeInsets.only(top: 0),
                   child: const Center(
                       child: Text(
                         'Регистрация',
                         style: TextStyle(
-                            fontSize: 64,
+                            fontSize: 56,
                             fontWeight: FontWeight.bold
                         ),
                       )
@@ -105,31 +108,38 @@ class RegisterPageState extends State<RegisterPage>{
                 ),
               ),
               Center(
-                child: Container(
-                    margin: const EdgeInsets.only(top: 32),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints.tightFor(width: 200, height: 48),
-                      child: FilledButton(
-                        onPressed: isButtonEnabled ? onRegisterButtonPressed : null,
-                        child: const Text(
-                            'Создать аккаунт'
-                        ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Container(
+                          margin: const EdgeInsets.only(top: 32),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints.tightFor(width: 200, height: 48),
+                            child: FilledButton(
+                              onPressed: isButtonEnabled ? onRegisterButtonPressed : null,
+                              child: const Text(
+                                  'Создать аккаунт'
+                              ),
+                            ),
+                          )
                       ),
-                    )
-                ),
-              ),
-              Visibility(
-                visible: isLoaderVisible,
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 32),
-                    child: const SpinKitPouringHourGlassRefined(
-                      color: Colors.deepPurple,
-                      duration: Duration(milliseconds: 1600),
-                      size: 70.0,
                     ),
-                  ),
-                )
+                    Visibility(
+                        visible: isLoaderVisible,
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(32,32, 0, 0),
+                            child: const SpinKitSpinningLines(
+                              color: Colors.deepPurple,
+                              duration: Duration(milliseconds: 2200),
+                              size: 48.0,
+                            ),
+                          ),
+                        )
+                    )
+                  ],
+                ),
               )
             ]
         )
@@ -154,7 +164,7 @@ class RegisterPageState extends State<RegisterPage>{
           updateButtonState();
         })
         .catchError((error) {
-          showAlertDialog(context, "Ошибка", "Отсутствует связь с сервером.");
+          showAlertDialog(context, "Ошибка", error.toString());
           toggleLoaderVisibility();
           updateButtonState();
         }
@@ -170,13 +180,41 @@ class RegisterPageState extends State<RegisterPage>{
       'role' : role
     });
     if (response.statusCode == 200) {
-      showAlertDialog(context, 'Alert', response.body);
       toggleLoaderVisibility();
+      showAlertDialogWithAction(context, 'Уведомление', response.body, (){
+        Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false);
+      });
     }
     else {
-      showAlertDialog(context, 'Alert', response.body);
+      showAlertDialog(context, 'Ошибка', response.body);
       toggleLoaderVisibility();
     }
+  }
+
+  void showAlertDialogWithAction(BuildContext context, String title, String message, VoidCallback action) {
+    // Create the AlertDialog
+    AlertDialog dialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        TextButton(
+          child: Text('OK'),
+          onPressed: () {
+
+            Navigator.of(context).pop();
+            action();
+          },
+        ),
+      ],
+    );
+
+    // Show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return dialog;
+      },
+    );
   }
 
   void showAlertDialog(BuildContext context, String title, String message) {
@@ -188,7 +226,6 @@ class RegisterPageState extends State<RegisterPage>{
         TextButton(
           child: Text('OK'),
           onPressed: () {
-            // Close the dialog
             Navigator.of(context).pop();
           },
         ),
