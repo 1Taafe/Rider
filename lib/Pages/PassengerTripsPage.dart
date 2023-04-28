@@ -7,19 +7,16 @@ import '../Classes/Person.dart';
 import '../Classes/Trip.dart';
 import '../Services/Serivce.dart';
 
-class FoundTripsPage extends StatefulWidget {
-  const FoundTripsPage({super.key, required this.departureCity,
-    required this.destinationCity, required this.tripsDate});
-
-  final String departureCity;
-  final String destinationCity;
-  final String tripsDate;
+class PassengerTripsPage extends StatefulWidget {
+  const PassengerTripsPage({super.key});
 
   @override
-  _FoundTripsPageState createState() => _FoundTripsPageState();
+  _PassengerTripsPageState createState() => _PassengerTripsPageState();
 }
 
-class _FoundTripsPageState extends State<FoundTripsPage> {
+enum Status { reserved, cancelled, cancelledByDriver, completed }
+
+class _PassengerTripsPageState extends State<PassengerTripsPage> {
 
   void showTripDialog(Trip trip, bool isReserved) {
     showCupertinoModalPopup<void>(
@@ -67,6 +64,38 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
                             ],
                           ),
                           Text("${trip.departureCity} - ${trip.destinationCity}")
+                        ],
+                      ),
+                    ),
+                  ),
+                  DecoratedBox(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: CupertinoColors.inactiveGray,
+                          width: 0.0,
+                        ),
+                        bottom: BorderSide(
+                          color: CupertinoColors.inactiveGray,
+                          width: 0.0,
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16,10,16,10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              Icon(
+                                  CupertinoIcons.calendar_circle_fill
+                              ),
+                              SizedBox(width: 8,),
+                              Text("Дата")
+                            ],
+                          ),
+                          Text("${trip.departureTime.year}-${trip.departureTime.month}-${trip.destinationTime.day}")
                         ],
                       ),
                     ),
@@ -231,38 +260,6 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
                       ),
                     ),
                   ),
-                  DecoratedBox(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: CupertinoColors.inactiveGray,
-                          width: 0.0,
-                        ),
-                        bottom: BorderSide(
-                          color: CupertinoColors.inactiveGray,
-                          width: 0.0,
-                        ),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16,10,16,10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Row(
-                            children: [
-                              Icon(
-                                  CupertinoIcons.person_3_fill
-                              ),
-                              SizedBox(width: 8,),
-                              Text("Кол-во свободных мест")
-                            ],
-                          ),
-                          Text("${trip.freePlaces}")
-                        ],
-                      ),
-                    ),
-                  ),
                   Container(
                     margin: EdgeInsets.only(top: 32),
                     child: ReserveButton(isReserved: isReserved, trip: trip, callback: reloadTripsList,),
@@ -274,8 +271,18 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
   }
 
   void reloadTripsList(){
-    Service.findTrips(widget.departureCity, widget.destinationCity, widget.tripsDate).then((result) {
-      Trip.parseToList(result, Trip.foundList);
+    Service.getPassengerTrips().then((result) {
+      Trip.parseToList(result, Trip.allTrips);
+      Trip.sortByStatus();
+      if(_selectedSegment == Status.reserved){
+        selectedTrips = Trip.reservedTrips;
+      }
+      else if(_selectedSegment == Status.cancelled){
+        selectedTrips = Trip.cancelledTrips;
+      }
+      else if(_selectedSegment == Status.completed){
+        selectedTrips = Trip.completedTrips;
+      }
       setState(() {});
     }).catchError((error){
       showCupertinoDialog(
@@ -300,81 +307,152 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
     });
   }
 
+  Map<Status, Color> statusColors = <Status, Color>{
+    Status.reserved: CupertinoColors.activeBlue,
+    Status.cancelled: CupertinoColors.destructiveRed,
+    Status.completed: CupertinoColors.activeGreen
+  };
+
   @override
   void initState() {
     reloadTripsList();
     super.initState();
   }
 
+  Status _selectedSegment = Status.reserved;
+
+  List<Trip> selectedTrips = [];
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Rider / ${widget.tripsDate}'),
+        middle: Text("Rider / Trips"),
       ),
       child: SafeArea(
           child: Scaffold(
-              body: ListView.builder(
-                itemCount: Trip.foundList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final trip = Trip.foundList[index];
-                  return Container(
-                    padding: EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey.withOpacity(0.5),
-                          width: 0.5,
-                        ),
-                      ),
-                    ),
-                    child: ListTile(
-                      onTap: (){
-                        Service.checkPlace(trip.id).then((result){
-                          print(trip);
-                          showTripDialog(trip, true);
-                        }).catchError((error){
-                          print(trip);
-                          showTripDialog(trip, false);
-                        });
+              body: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    child: CupertinoSlidingSegmentedControl<Status>(
+                      backgroundColor: CupertinoColors.systemGrey2,
+                      thumbColor: statusColors[_selectedSegment]!,
+                      // This represents the currently selected segmented control.
+                      groupValue: _selectedSegment,
+                      // Callback that sets the selected segmented control.
+                      onValueChanged: (Status? value) {
+                        reloadTripsList();
+                        if (value != null) {
+                          setState(() {
+                            _selectedSegment = value;
+                          });
+                        }
                       },
-                      title: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.location),
-                              SizedBox(width: 8,),
-                              Text(trip.departureCity + " – " + trip.destinationCity,
-                                style: TextStyle(
-                                    fontSize: 22,
-                                    letterSpacing: 2
-                                ),),
-                            ],
+                      children: const <Status, Widget>{
+                        Status.reserved: Padding(
+                          padding: EdgeInsets.fromLTRB(20,12,20,12),
+                          child: Text(
+                            'Брони',
+                            style: TextStyle(color: CupertinoColors.white),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(CupertinoIcons.time),
-                              SizedBox(width: 8,),
-                              Text("${trip.departureTime.hour.toString().padLeft(2, '0')}:${trip.departureTime.minute.toString().padLeft(2, '0')} - ${trip.destinationTime.hour.toString().padLeft(2, '0')}:${trip.destinationTime.minute.toString().padLeft(2, '0')}",
-                                style: TextStyle(
-                                    fontSize: 18
-                                ),),
-                            ],
+                        ),
+                        Status.cancelled: Padding(
+                          padding: EdgeInsets.fromLTRB(20,12,20,12),
+                          child: Text(
+                            'Отменены',
+                            style: TextStyle(color: CupertinoColors.white),
                           ),
-                        ],
-                      ),
-                      subtitle: Column(
-                        children: [
-                          Text('Авто: ${trip.carModel}'),
-                          Text('Стоимость: ${trip.cost} BYN'),
-                        ],
-                      ),
+                        ),
+                        Status.completed: Padding(
+                          padding: EdgeInsets.fromLTRB(20,12,20,12),
+                          child: Text(
+                            'Завершены',
+                            style: TextStyle(color: CupertinoColors.white),
+                          ),
+                        ),
+                      },
                     ),
-                  );
-                },
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - 200,
+                    child: ListView.builder(
+                      itemCount: selectedTrips.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final trip = selectedTrips[index];
+                        return Container(
+                          padding: EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey.withOpacity(0.5),
+                                width: 0.5,
+                              ),
+                            ),
+                          ),
+                          child: ListTile(
+                            onTap: (){
+                              if(_selectedSegment != Status.completed){
+                                Service.checkPlace(trip.id).then((result){
+                                  print(trip);
+                                  showTripDialog(trip, true);
+                                }).catchError((error){
+                                  print(trip);
+                                  showTripDialog(trip, false);
+                                });
+                              }
+                            },
+                            title: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(CupertinoIcons.location),
+                                    SizedBox(width: 8,),
+                                    Text(trip.departureCity + " – " + trip.destinationCity,
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          letterSpacing: 2
+                                      ),),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(CupertinoIcons.calendar),
+                                    SizedBox(width: 8,),
+                                    Text("${trip.departureTime.day}.${trip.departureTime.month}.${trip.destinationTime.year}",
+                                      style: TextStyle(
+                                          fontSize: 18
+                                      ),),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(CupertinoIcons.time),
+                                    SizedBox(width: 8,),
+                                    Text("${trip.departureTime.hour.toString().padLeft(2, '0')}:${trip.departureTime.minute.toString().padLeft(2, '0')} - ${trip.destinationTime.hour.toString().padLeft(2, '0')}:${trip.destinationTime.minute.toString().padLeft(2, '0')}",
+                                      style: TextStyle(
+                                          fontSize: 18
+                                      ),),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              children: [
+                                Text('Авто: ${trip.carModel}'),
+                                Text('Стоимость: ${trip.cost} BYN'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
               )
           )
 
@@ -436,7 +514,7 @@ class _ReserveButtonState extends State<ReserveButton> {
           return CupertinoAlertDialog(
             title: Text('Бронирование'),
             content: Text(
-                'Произошла ошибка!'),
+                'Произошла ошибка! Вероятно свободных мест не осталось!'),
             actions: [
               CupertinoDialogAction(
                 child: Text('OK'),
@@ -505,7 +583,7 @@ class _ReserveButtonState extends State<ReserveButton> {
         color: CupertinoColors.activeBlue, // Set the desired background color
         borderRadius: BorderRadius.circular(8),
         child: Text(
-          'Забронировать',
+          'Восстановить бронь',
           style: TextStyle(
             color: CupertinoColors.white, // Set the desired text color
           ),

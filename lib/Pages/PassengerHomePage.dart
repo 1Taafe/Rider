@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:rider/Pages/FindTripPage.dart';
+import 'package:rider/Pages/PassengerTripsPage.dart';
 import 'package:rider/Services/SharedPrefs.dart';
 
 import '../Services/Serivce.dart';
@@ -129,7 +130,11 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
                           ],
                         ),
                         onPressed: (){
-
+                          Navigator.of(context).push(CupertinoPageRoute(
+                              builder: (BuildContext) {
+                                return PassengerTripsPage();
+                              }
+                          ));
                         }
                     ),
                   ),

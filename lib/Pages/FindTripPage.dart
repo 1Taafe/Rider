@@ -254,35 +254,11 @@ class _FindTripPageState extends State<FindTripPage> {
   }
 
   void findTrips(String departureCity, String destinationCity, String date){
-    Service.findTrips(departureCity, destinationCity, date).then((result) {
-      Trip.parseToList(result).then((result){
-        print(Trip.foundList);
-        Navigator.of(context).push(CupertinoPageRoute(
-            builder: (BuildContext) {
-              return FoundTripsPage(tripsDate: date);
-            }
-        ));
-      });
-    }).catchError((error){
-      showCupertinoDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            title: Text('Внимание'),
-            content: Text(
-                error.toString()),
-            actions: [
-              CupertinoDialogAction(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    });
+    Navigator.of(context).push(CupertinoPageRoute(
+        builder: (BuildContext) {
+          return FoundTripsPage(tripsDate: date, departureCity: departureCity, destinationCity: destinationCity,);
+        }
+    ));
   }
 }
 
