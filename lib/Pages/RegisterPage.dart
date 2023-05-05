@@ -37,103 +37,118 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       child: SafeArea(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(24),
-                  child: Text(
-                    "Введите необходимые данные",
-                    style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        height: 0.92
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      "Введите необходимые данные",
+                      style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          height: 0.92
+                      ),
                     ),
                   ),
-                ),
-                CupertinoTextField(
-                  placeholder: 'Имя пользователя',
-                  controller: usernameController,
-                  prefix: Container(
-                    margin: EdgeInsets.only(left: 16),
-                    child: Icon(
-                        CupertinoIcons.person
+                  CupertinoTextField(
+                    placeholder: 'Имя пользователя',
+                    controller: usernameController,
+                    prefix: Container(
+                      margin: EdgeInsets.only(left: 16),
+                      child: Icon(
+                          CupertinoIcons.person
+                      ),
+                    ),
+                    padding: EdgeInsets.all(18),
+                  ),
+                  SizedBox(height: 16.0),
+                  CupertinoTextField(
+                    placeholder: 'Пароль',
+                    controller: passwordController,
+                    obscureText: true,
+                    prefix: Container(
+                      margin: EdgeInsets.only(left: 16),
+                      child: Icon(
+                          CupertinoIcons.lock
+                      ),
+                    ),
+                    padding: EdgeInsets.all(18),
+                  ),
+                  SizedBox(height: 16.0),
+                  CupertinoTextField(
+                    placeholder: 'Номер телефона',
+                    controller: phoneController,
+                    prefix: Container(
+                      margin: EdgeInsets.only(left: 16),
+                      child: Icon(
+                          CupertinoIcons.phone
+                      ),
+                    ),
+                    padding: EdgeInsets.all(18),
+                  ),
+                  SizedBox(height: 16.0),
+                  CupertinoTextField(
+                    placeholder: 'Отображаемое имя',
+                    controller: displayedNameController,
+                    prefix: Container(
+                      margin: EdgeInsets.only(left: 16),
+                      child: Icon(
+                          CupertinoIcons.person_3
+                      ),
+                    ),
+                    padding: EdgeInsets.all(18),
+                  ),
+                  SizedBox(height: 20.0),
+                  Text('Выберите тип учетной записи'),
+                  SizedBox(height: 12.0),
+                  CupertinoSegmentedControl(
+                    children: _children,
+                    groupValue: _selectedSegmentIndex,
+                    onValueChanged: (value) {
+                      setState(() {
+                        _selectedSegmentIndex = value;
+                        if(_selectedSegmentIndex == 0){
+                          _selectedRole = "passenger";
+                        }
+                        else if(_selectedSegmentIndex == 1){
+                          _selectedRole = "driver";
+                        }
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  Text('Роль учетной записи: $_selectedRole'),
+                  SizedBox(height: 64),
+                  Visibility(
+                    visible: !Service.isLoading,
+                    child: CupertinoButton.filled(
+                      // borderRadius: BorderRadius.all(Radius.circular(0)),
+                      child: Text('Зарегистрироваться'),
+                      padding: EdgeInsets.fromLTRB(54, 18, 54, 18),
+                      onPressed: () {
+                        String username = usernameController.text;
+                        String password = passwordController.text;
+                        String phone = phoneController.text;
+                        String displayedName = displayedNameController.text;
+                        String role = _selectedRole;
+                        register(username, password, phone, role, displayedName);
+                      },
                     ),
                   ),
-                  padding: EdgeInsets.all(18),
-                ),
-                SizedBox(height: 16.0),
-                CupertinoTextField(
-                  placeholder: 'Пароль',
-                  controller: passwordController,
-                  obscureText: true,
-                  prefix: Container(
-                    margin: EdgeInsets.only(left: 16),
-                    child: Icon(
-                        CupertinoIcons.lock
-                    ),
+                  Visibility(
+                      visible: Service.isLoading,
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                        alignment: Alignment.center,
+                        child: CupertinoActivityIndicator(
+                          radius: 24,
+                        ),
+                      )
                   ),
-                  padding: EdgeInsets.all(18),
-                ),
-                SizedBox(height: 16.0),
-                CupertinoTextField(
-                  placeholder: 'Номер телефона',
-                  controller: phoneController,
-                  prefix: Container(
-                    margin: EdgeInsets.only(left: 16),
-                    child: Icon(
-                        CupertinoIcons.phone
-                    ),
-                  ),
-                  padding: EdgeInsets.all(18),
-                ),
-                SizedBox(height: 16.0),
-                CupertinoTextField(
-                  placeholder: 'Отображаемое имя',
-                  controller: displayedNameController,
-                  prefix: Container(
-                    margin: EdgeInsets.only(left: 16),
-                    child: Icon(
-                        CupertinoIcons.person_3
-                    ),
-                  ),
-                  padding: EdgeInsets.all(18),
-                ),
-                SizedBox(height: 20.0),
-                Text('Выберите тип учетной записи'),
-                SizedBox(height: 12.0),
-                CupertinoSegmentedControl(
-                  children: _children,
-                  groupValue: _selectedSegmentIndex,
-                  onValueChanged: (value) {
-                    setState(() {
-                      _selectedSegmentIndex = value;
-                      if(_selectedSegmentIndex == 0){
-                        _selectedRole = "passenger";
-                      }
-                      else if(_selectedSegmentIndex == 1){
-                        _selectedRole = "driver";
-                      }
-                    });
-                  },
-                ),
-                SizedBox(height: 16),
-                Text('Роль учетной записи: $_selectedRole'),
-                SizedBox(height: 64),
-                CupertinoButton.filled(
-                  // borderRadius: BorderRadius.all(Radius.circular(0)),
-                  child: Text('Зарегистрироваться'),
-                  padding: EdgeInsets.fromLTRB(54, 18, 54, 18),
-                  onPressed: () {
-                    String username = usernameController.text;
-                    String password = passwordController.text;
-                    String phone = phoneController.text;
-                    String displayedName = displayedNameController.text;
-                    String role = _selectedRole;
-                    register(username, password, phone, role, displayedName);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           )
 
@@ -142,7 +157,13 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void register(String username, String password, String phone, String role, String displayedName) {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.register(username, password, phone, displayedName, role).then((result) {
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -163,6 +184,9 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {

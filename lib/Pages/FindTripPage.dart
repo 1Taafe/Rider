@@ -17,6 +17,9 @@ class FindTripPage extends StatefulWidget {
 class _FindTripPageState extends State<FindTripPage> {
 
   void getListOfCities() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.getCities().then((result){
       Map<String, dynamic> jsonMap = result;
       List<dynamic> cityList = jsonMap['result'];
@@ -31,10 +34,33 @@ class _FindTripPageState extends State<FindTripPage> {
         cities.add(city);
       }
       setState(() {
-
+        Service.isLoading = false;
       });
+      departureCity = _cities[0];
+      destinationCity = _cities[0];
     }).catchError((error){
-
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text('Внимание'),
+            content: Text(
+                'Не удалось установить соединение с сервером.'),
+            actions: [
+              CupertinoDialogAction(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        Service.isLoading = false;
+      });
     });
   }
 
@@ -78,7 +104,20 @@ class _FindTripPageState extends State<FindTripPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Rider / findTrip'),
+        middle: Stack(
+          children: [
+            Visibility(
+              visible: !Service.isLoading,
+              child: Text("Rider / findTrips"),
+            ),
+            Visibility(
+                visible: Service.isLoading,
+                child: CupertinoActivityIndicator(
+                  radius: 12,
+                )
+            ),
+          ],
+        ),
       ),
       child: SafeArea(
           child: Center(

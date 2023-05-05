@@ -20,6 +20,9 @@ class _DriverTripsPageState extends State<DriverTripsPage> {
   String allPassengers = "";
   void _showActionSheet(BuildContext context, Trip trip) {
     Service.getTripPassengers(trip.id).then((result){
+      setState(() {
+        Service.isLoading = false;
+      });
       User.parseToList(result, User.passengers);
       allPassengers = "";
       for(User p in User.passengers){
@@ -32,7 +35,7 @@ class _DriverTripsPageState extends State<DriverTripsPage> {
             style: TextStyle(
                 fontSize: 24
             ),),
-          message: Text('Выберите действие, которое необходимо совершить. Внимание! Статус поездки невозможно изменить в последующем! Статус будет изменен для следующих пассажиров: \n\n' + allPassengers,
+          message: Text('Выберите действие, которое необходимо совершить. Внимание! Статус поездки невозможно изменить в последующем! Отменить поездку нельзя за 1 день до отправления! Статус будет изменен для следующих пассажиров: \n\n' + allPassengers,
             style: TextStyle(
                 fontSize: 18
             ),),
@@ -63,6 +66,9 @@ class _DriverTripsPageState extends State<DriverTripsPage> {
         ),
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showAlertDialog("Управление поездкой", "Не удалось получить список пассажиров!");
     });
   }
@@ -319,6 +325,9 @@ class _DriverTripsPageState extends State<DriverTripsPage> {
                           child: ListTile(
                             onTap: (){
                               if(_selectedSegment == Status.created){
+                                setState(() {
+                                  Service.isLoading = true;
+                                });
                                 _showActionSheet(context, trip);
                               }
                             },

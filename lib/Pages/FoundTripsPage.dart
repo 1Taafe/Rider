@@ -274,10 +274,19 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
   }
 
   void reloadTripsList(){
+    setState(() {
+      Service.isLoading = true;
+      Trip.foundList.clear();
+    });
     Service.findTrips(widget.departureCity, widget.destinationCity, widget.tripsDate).then((result) {
       Trip.parseToList(result, Trip.foundList);
-      setState(() {});
+      setState(() {
+        Service.isLoading = false;
+      });
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -310,7 +319,20 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Rider / ${widget.tripsDate}'),
+        middle: Stack(
+          children: [
+            Visibility(
+              visible: !Service.isLoading,
+              child: Text("Rider / ${widget.tripsDate}"),
+            ),
+            Visibility(
+                visible: Service.isLoading,
+                child: CupertinoActivityIndicator(
+                  radius: 12,
+                )
+            ),
+          ],
+        ),
       ),
       child: SafeArea(
           child: Scaffold(
@@ -331,12 +353,19 @@ class _FoundTripsPageState extends State<FoundTripsPage> {
                     ),
                     child: ListTile(
                       onTap: (){
+                        setState(() {
+                          Service.isLoading = true;
+                        });
                         Service.checkPlace(trip.id).then((result){
-                          print(trip);
                           showTripDialog(trip, true);
+                          setState(() {
+                            Service.isLoading = false;
+                          });
                         }).catchError((error){
-                          print(trip);
                           showTripDialog(trip, false);
+                          setState(() {
+                            Service.isLoading = false;
+                          });
                         });
                       },
                       title: Column(
@@ -408,7 +437,13 @@ class _ReserveButtonState extends State<ReserveButton> {
   }
 
   void _onReserve() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.reservePlace(trip.id).then((result){
+      setState(() {
+        Service.isLoading = false;
+      });
       widget.callback();
       showCupertinoDialog(
         context: context,
@@ -430,6 +465,9 @@ class _ReserveButtonState extends State<ReserveButton> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -453,7 +491,13 @@ class _ReserveButtonState extends State<ReserveButton> {
   }
 
   void _onCancel() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.cancelPlace(trip.id).then((result){
+      setState(() {
+        Service.isLoading = false;
+      });
       widget.callback();
       showCupertinoDialog(
         context: context,
@@ -475,6 +519,9 @@ class _ReserveButtonState extends State<ReserveButton> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -501,28 +548,32 @@ class _ReserveButtonState extends State<ReserveButton> {
   Widget build(BuildContext context) {
     if(isReserveButton){
       return CupertinoButton(
-        onPressed: _onReserve,
+        onPressed: !Service.isLoading ? _onReserve : null,
         color: CupertinoColors.activeBlue, // Set the desired background color
         borderRadius: BorderRadius.circular(8),
-        child: Text(
+        child: !Service.isLoading ? Text(
           'Забронировать',
           style: TextStyle(
             color: CupertinoColors.white, // Set the desired text color
           ),
-        ),
+        ) : CupertinoActivityIndicator(
+
+        )
       );
     }
     else{
       return CupertinoButton(
-        onPressed: _onCancel,
+        onPressed: !Service.isLoading ? _onCancel : null,
         color: CupertinoColors.destructiveRed, // Set the desired background color
         borderRadius: BorderRadius.circular(8),
-        child: Text(
-          'Отменить бронь',
-          style: TextStyle(
-            color: CupertinoColors.white, // Set the desired text color
-          ),
-        ),
+          child: !Service.isLoading ? Text(
+            'Отменить бронь',
+            style: TextStyle(
+              color: CupertinoColors.white, // Set the desired text color
+            ),
+          ) : CupertinoActivityIndicator(
+
+          )
       );
     }
 

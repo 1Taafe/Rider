@@ -17,6 +17,9 @@ class CreateTripPage extends StatefulWidget {
 class _CreateTripPageState extends State<CreateTripPage> {
 
   void getListOfCities() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.getCities().then((result){
       Map<String, dynamic> jsonMap = result;
       List<dynamic> cityList = jsonMap['result'];
@@ -33,10 +36,31 @@ class _CreateTripPageState extends State<CreateTripPage> {
 
       print(cities);
       setState(() {
-
+        Service.isLoading = false;
       });
     }).catchError((error){
-
+      showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text('Внимание'),
+            content: Text(
+                'Не удалось установить соединение с сервером.'),
+            actions: [
+              CupertinoDialogAction(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      setState(() {
+        Service.isLoading = false;
+      });
     });
   }
 
@@ -91,7 +115,20 @@ class _CreateTripPageState extends State<CreateTripPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Rider / createTrip'),
+        middle: Stack(
+          children: [
+            Visibility(
+              visible: !Service.isLoading,
+              child: Text("Rider / createTrip"),
+            ),
+            Visibility(
+                visible: Service.isLoading,
+                child: CupertinoActivityIndicator(
+                  radius: 12,
+                )
+            ),
+          ],
+        ),
       ),
       child: SafeArea(
           child: Center(
@@ -99,7 +136,7 @@ class _CreateTripPageState extends State<CreateTripPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 48,),
+                  SizedBox(height: 16,),
                   DecoratedBox(
                     decoration: const BoxDecoration(
                       border: Border(
@@ -461,20 +498,42 @@ class _CreateTripPageState extends State<CreateTripPage> {
                     child: CupertinoButton(
                       color: CupertinoColors.activeOrange,
                       padding: EdgeInsets.all(18),
-                      child: Row(
+                      child: !Service.isLoading ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(CupertinoIcons.rocket),
                           SizedBox(width: 16,),
                           Text("Создать поездку")
                         ],
-                      ),
-                      onPressed: (){
-                        createTrip(departureCity, destinationCity, formattedDepartureDate,
-                            formattedDestinationDate, carModelController.text,
-                            carNumberController.text, descriptionController.text,
-                            double.parse(costController.text), freePlaces);
-                      },
+                      ) : CupertinoActivityIndicator(),
+                      onPressed: !Service.isLoading ? (){
+                        try{
+                          createTrip(departureCity, destinationCity, formattedDepartureDate,
+                              formattedDestinationDate, carModelController.text,
+                              carNumberController.text, descriptionController.text,
+                              double.parse(costController.text), freePlaces);
+                        }
+                        catch(error){
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoAlertDialog(
+                                title: Text('Новая поездка'),
+                                content: Text(
+                                    'Произошла ошибка. Заполните правильно поля!'),
+                                actions: [
+                                  CupertinoDialogAction(
+                                    child: Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      } : null,
                     ),
                   )
                 ],
@@ -489,8 +548,14 @@ class _CreateTripPageState extends State<CreateTripPage> {
   void createTrip(String departureCity, String destinationCity,
       String departureTime, String destinationTime, String carModel, String carNumber,
       String description, double cost, int maxPlaces){
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.createTrip(departureCity, destinationCity, departureTime,
         destinationTime, carModel, carNumber, description, cost, maxPlaces).then((result){
+          setState(() {
+            Service.isLoading = false;
+          });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -511,13 +576,16 @@ class _CreateTripPageState extends State<CreateTripPage> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(
             title: Text('Новая поездка'),
             content: Text(
-                'Произошла ошибка. Не удалось создать новую поездку!!'),
+                'Произошла ошибка. Не удалось создать новую поездку!'),
             actions: [
               CupertinoDialogAction(
                 child: Text('OK'),

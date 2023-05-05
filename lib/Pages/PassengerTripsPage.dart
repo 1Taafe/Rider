@@ -336,7 +336,7 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
       });
     }
     else{
-      Service.getDriverTrips().then((result) {
+      Service.getPassengerTrips().then((result) {
         var resultList = result;
         Trip.parseToList(resultList, Trip.allTrips);
         Trip.sortByStatus();
@@ -483,12 +483,21 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
                           ),
                           child: ListTile(
                             onTap: (){
+                              setState(() {
+                                Service.isLoading = true;
+                              });
                               if(_selectedSegment != Status.completed){
                                 Service.checkPlace(trip.id).then((result){
                                   //print(trip);
+                                  setState(() {
+                                    Service.isLoading = false;
+                                  });
                                   showTripDialog(trip, true);
                                 }).catchError((error){
                                   //print(trip);
+                                  setState(() {
+                                    Service.isLoading = false;
+                                  });
                                   showTripDialog(trip, false);
                                 });
                               }
@@ -576,7 +585,13 @@ class _ReserveButtonState extends State<ReserveButton> {
   }
 
   void _onReserve() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.reservePlace(trip.id).then((result){
+      setState(() {
+        Service.isLoading = false;
+      });
       widget.callback();
       showCupertinoDialog(
         context: context,
@@ -598,13 +613,16 @@ class _ReserveButtonState extends State<ReserveButton> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
           return CupertinoAlertDialog(
             title: Text('Бронирование'),
             content: Text(
-                'Произошла ошибка! Вероятно свободных мест не осталось!'),
+                'Произошла ошибка!'),
             actions: [
               CupertinoDialogAction(
                 child: Text('OK'),
@@ -621,7 +639,13 @@ class _ReserveButtonState extends State<ReserveButton> {
   }
 
   void _onCancel() {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.cancelPlace(trip.id).then((result){
+      setState(() {
+        Service.isLoading = false;
+      });
       widget.callback();
       showCupertinoDialog(
         context: context,
@@ -643,6 +667,9 @@ class _ReserveButtonState extends State<ReserveButton> {
         },
       );
     }).catchError((error){
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -669,28 +696,32 @@ class _ReserveButtonState extends State<ReserveButton> {
   Widget build(BuildContext context) {
     if(isReserveButton){
       return CupertinoButton(
-        onPressed: _onReserve,
-        color: CupertinoColors.activeBlue, // Set the desired background color
-        borderRadius: BorderRadius.circular(8),
-        child: Text(
-          'Восстановить бронь',
-          style: TextStyle(
-            color: CupertinoColors.white, // Set the desired text color
-          ),
-        ),
+          onPressed: !Service.isLoading ? _onReserve : null,
+          color: CupertinoColors.activeBlue, // Set the desired background color
+          borderRadius: BorderRadius.circular(8),
+          child: !Service.isLoading ? Text(
+            'Восстановить бронь',
+            style: TextStyle(
+              color: CupertinoColors.white, // Set the desired text color
+            ),
+          ) : CupertinoActivityIndicator(
+
+          )
       );
     }
     else{
       return CupertinoButton(
-        onPressed: _onCancel,
-        color: CupertinoColors.destructiveRed, // Set the desired background color
-        borderRadius: BorderRadius.circular(8),
-        child: Text(
-          'Отменить бронь',
-          style: TextStyle(
-            color: CupertinoColors.white, // Set the desired text color
-          ),
-        ),
+          onPressed: !Service.isLoading ? _onCancel : null,
+          color: CupertinoColors.destructiveRed, // Set the desired background color
+          borderRadius: BorderRadius.circular(8),
+          child: !Service.isLoading ? Text(
+            'Отменить бронь',
+            style: TextStyle(
+              color: CupertinoColors.white, // Set the desired text color
+            ),
+          ) : CupertinoActivityIndicator(
+
+          )
       );
     }
 

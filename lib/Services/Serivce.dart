@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import '../Classes/User.dart';
 
 class Service{
-  static String uri = "http://localhost:3000";
+  //static String uri = "http://localhost:3000";
+  static String uri = "http://8.210.33.51:3000";
   static User? currentUser;
 
   static bool isLoading = false;

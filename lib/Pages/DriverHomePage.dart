@@ -93,7 +93,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   child: Row(
                     children: [
                       Container(
-                        width: 360,
+                        width: MediaQuery.of(context).size.width - 64,
+                        margin: EdgeInsets.only(left: 32, right: 32),
                         child: CupertinoButton(
                             color: CupertinoColors.activeOrange,
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
@@ -122,7 +123,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   child: Row(
                     children: [
                       Container(
-                        width: 360,
+                        width: MediaQuery.of(context).size.width - 64,
+                        margin: EdgeInsets.only(left: 32, right: 32),
                         child: CupertinoButton(
                             color: CupertinoColors.activeOrange,
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
@@ -151,7 +153,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
                   child: Row(
                     children: [
                       Container(
-                        width: 164,
+                        width: MediaQuery.of(context).size.width / 2 - 64,
+                        margin: EdgeInsets.only(left: 32, right: 32),
                         child: CupertinoButton(
                             color: CupertinoColors.activeOrange,
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
@@ -171,7 +174,8 @@ class _DriverHomePageState extends State<DriverHomePage> {
                       ),
                       SizedBox(width: 32,),
                       Container(
-                        width: 164,
+                        width: MediaQuery.of(context).size.width / 2 - 64,
+                        margin: EdgeInsets.only(left: 0, right: 32),
                         child: CupertinoButton(
                             color: CupertinoColors.activeOrange,
                             padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
