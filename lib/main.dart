@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:rider/Services/LocalDatabase.dart';
 
 import 'Pages/LoginPage.dart';
 
-void main() {
+void main() async {
   runApp(CupertinoApp(
     title: 'Rider',
     initialRoute: "/",

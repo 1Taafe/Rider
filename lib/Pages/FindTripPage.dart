@@ -30,8 +30,9 @@ class _FindTripPageState extends State<FindTripPage> {
         _cities.add(city.name);
         cities.add(city);
       }
+      setState(() {
 
-      print(cities);
+      });
     }).catchError((error){
 
     });

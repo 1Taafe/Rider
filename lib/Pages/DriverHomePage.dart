@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:rider/Pages/CreateTripPage.dart';
 import 'package:rider/Pages/FindTripPage.dart';
+import 'package:rider/Services/LocalDatabase.dart';
 import 'package:rider/Services/SharedPrefs.dart';
 
 import '../Services/Serivce.dart';
@@ -163,6 +164,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                             ),
                             onPressed: (){
                               SharedPrefs.clearUser();
+                              LocalDatabase.deleteAllData();
                               Navigator.of(context).pop();
                             }
                         ),

@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../Classes/City.dart';
 import '../Classes/User.dart';
 
 class Service{
-  final String url = "http://localhost:3000";
+  static String uri = "http://localhost:3000";
   static User? currentUser;
 
+  static bool isLoading = false;
+
   static Future<dynamic> getTripPassengers(int tripId) async {
-    const String url = 'http://localhost:3000/getTripPassengers';
+    var url = '$uri/getTripPassengers';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id": tripId
@@ -31,7 +32,7 @@ class Service{
   }
 
   static Future<dynamic> cancelTrip(int tripId) async {
-    const String url = 'http://localhost:3000/cancelTrip';
+    var url = '$uri/cancelTrip';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id" : tripId
@@ -53,7 +54,7 @@ class Service{
   }
 
   static Future<dynamic> completeTrip(int tripId) async {
-    const String url = 'http://localhost:3000/completeTrip';
+    var url = '$uri/completeTrip';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id" : tripId
@@ -75,7 +76,7 @@ class Service{
   }
 
   static dynamic getDriverTrips() async {
-    const String url = 'http://localhost:3000/getAllDriverTrips';
+    var url = '$uri/getAllDriverTrips';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
     };
@@ -99,7 +100,7 @@ class Service{
   static Future<dynamic> createTrip(String departureCity, String destinationCity,
       String departureTime, String destinationTime, String carModel, String carNumber,
       String description, double cost, int maxPlaces) async {
-    const String url = 'http://localhost:3000/createTrip';
+    var url = '$uri/createTrip';
     final Map<String, dynamic> data = {
       "departure_city" : departureCity,
       "destination_city" : destinationCity,
@@ -129,7 +130,7 @@ class Service{
   }
 
   static Future<dynamic> cancelPlace(int tripId) async {
-    const String url = 'http://localhost:3000/cancelPlace';
+    var url = '$uri/cancelPlace';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id" : tripId
@@ -151,7 +152,7 @@ class Service{
   }
 
   static Future<dynamic> reservePlace(int tripId) async {
-    const String url = 'http://localhost:3000/reservePlace';
+    var url = '$uri/reservePlace';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id" : tripId
@@ -173,7 +174,7 @@ class Service{
   }
 
   static Future<dynamic> checkPlace(int tripId) async {
-    const String url = 'http://localhost:3000/checkPlace';
+    var url = '$uri/checkPlace';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "trip_id" : tripId
@@ -195,7 +196,7 @@ class Service{
   }
 
   static dynamic getPassengerTrips() async {
-    const String url = 'http://localhost:3000/getAllPassengerTrips';
+    var url = '$uri/getAllPassengerTrips';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
     };
@@ -217,7 +218,7 @@ class Service{
   }
 
   static dynamic findTrips(String departureCity, String destinationCity, String date) async {
-    const String url = 'http://localhost:3000/findTrips';
+    var url = '$uri/findTrips';
     final Map<String, dynamic> data = {
       "user_key" : currentUser?.key,
       "departure_city" : departureCity,
@@ -242,7 +243,7 @@ class Service{
   }
 
   static Future<dynamic> getCities() async {
-    const String url = 'http://localhost:3000/getCities';
+    var url = '$uri/getCities';
     final http.Response response = await http.get(
       Uri.parse(url),
       headers: <String, String>{
@@ -260,7 +261,7 @@ class Service{
 
   static Future<dynamic> register(String username, String password,
       String phone, String displayedName, String role) async {
-    const String url = 'http://localhost:3000/register';
+    var url = '$uri/register';
     final Map<String, dynamic> data = {
       'username': username,
       'password': password,
@@ -285,7 +286,7 @@ class Service{
   }
 
   static Future<dynamic> login(String username, String password) async {
-    const String url = 'http://localhost:3000/auth';
+    var url = '$uri/auth';
 
     final Map<String, dynamic> data = {'username': username, 'password': password};
 

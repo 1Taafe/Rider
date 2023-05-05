@@ -15,6 +15,25 @@ class Trip{
   double cost = 0;
   int freePlaces = 0;
 
+  Trip();
+
+  Trip.byLocal(String departureCity, String destinationCity, String name,
+      String phoneNumber, String carModel, String carNumber, String departureTime,
+      String destinationTime, double cost, String status){
+    this.departureCity = departureCity;
+    this.destinationCity = destinationCity;
+    this.driverName = name;
+    this.driverPhone = phoneNumber;
+    this.carModel = carModel;
+    this.carNumber = carNumber;
+    this.departureTimeString = departureTime;
+    this.departureTime = DateTime.parse(this.departureTimeString).toLocal();
+    this.destinationTimeString = destinationTime;
+    this.destinationTime = DateTime.parse(this.destinationTimeString).toLocal();
+    this.cost = cost;
+    this.status = status;
+  }
+
   @override
   String toString() {
     return "${departureCity} - ${destinationCity} / ${id}";

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rider/Pages/FindTripPage.dart';
+import 'package:rider/Services/LocalDatabase.dart';
 import 'package:rider/Services/SharedPrefs.dart';
 
 import '../Classes/Person.dart';
@@ -271,40 +273,109 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
   }
 
   void reloadTripsList(){
-    Service.getPassengerTrips().then((result) {
-      Trip.parseToList(result, Trip.allTrips);
-      Trip.sortByStatus();
-      if(_selectedSegment == Status.reserved){
-        selectedTrips = Trip.reservedTrips;
-      }
-      else if(_selectedSegment == Status.cancelled){
-        selectedTrips = Trip.cancelledTrips;
-      }
-      else if(_selectedSegment == Status.completed){
-        selectedTrips = Trip.completedTrips;
-      }
-      setState(() {});
-    }).catchError((error){
-      showCupertinoDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            title: Text('Внимание'),
-            content: Text(
-                error.toString()),
-            actions: [
-              CupertinoDialogAction(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+    setState(() {
+      Service.isLoading = true;
     });
+    if(!kIsWeb){
+      Service.getPassengerTrips().then((result) {
+        var resultList = result;
+        LocalDatabase.deleteAllData().then((result){
+          Trip.parseToList(resultList, Trip.allTrips);
+          for(Trip t in Trip.allTrips){
+            LocalDatabase.createNewTrip(t);
+          }
+          Trip.sortByStatus();
+          if(_selectedSegment == Status.reserved){
+            selectedTrips = Trip.reservedTrips;
+          }
+          else if(_selectedSegment == Status.cancelled){
+            selectedTrips = Trip.cancelledTrips;
+          }
+          else if(_selectedSegment == Status.completed){
+            selectedTrips = Trip.completedTrips;
+          }
+          setState(() {
+            Service.isLoading = false;
+          });
+        });
+      }).catchError((error){
+        // showCupertinoDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return CupertinoAlertDialog(
+        //       title: Text('Внимание'),
+        //       content: Text(
+        //           error.toString() + "\n Вы в оффлайн режиме!"),
+        //       actions: [
+        //         CupertinoDialogAction(
+        //           child: Text('OK'),
+        //           onPressed: () {
+        //             Navigator.of(context).pop();
+        //           },
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // );
+        LocalDatabase.getAllTripsWithDetails().then((result){
+          Trip.allTrips = result;
+          Trip.sortByStatus();
+          if(_selectedSegment == Status.reserved){
+            selectedTrips = Trip.reservedTrips;
+          }
+          else if(_selectedSegment == Status.cancelled){
+            selectedTrips = Trip.cancelledTrips;
+          }
+          else if(_selectedSegment == Status.completed){
+            selectedTrips = Trip.completedTrips;
+          }
+          setState(() {
+            Service.isLoading = false;
+          });
+        });
+      });
+    }
+    else{
+      Service.getDriverTrips().then((result) {
+        var resultList = result;
+        Trip.parseToList(resultList, Trip.allTrips);
+        Trip.sortByStatus();
+        if(_selectedSegment == Status.reserved){
+          selectedTrips = Trip.reservedTrips;
+        }
+        else if(_selectedSegment == Status.cancelled){
+          selectedTrips = Trip.cancelledTrips;
+        }
+        else if(_selectedSegment == Status.completed){
+          selectedTrips = Trip.completedTrips;
+        }
+        setState(() {
+          Service.isLoading = false;
+        });
+      }).catchError((error){
+        Service.isLoading = false;
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Внимание'),
+              content: Text(
+                  error.toString() + "\n Не удалось загрузить данные!"),
+              actions: [
+                CupertinoDialogAction(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+
+
   }
 
   Map<Status, Color> statusColors = <Status, Color>{
@@ -327,7 +398,27 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text("Rider / Trips"),
+        middle: Stack(
+          children: [
+            Visibility(
+              visible: !Service.isLoading,
+              child: Text("Rider / Trips (${selectedTrips.length})"),
+            ),
+            Visibility(
+                visible: Service.isLoading,
+                child: CupertinoActivityIndicator(
+                  radius: 12,
+                )
+            ),
+          ],
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Icon(Icons.refresh),
+          onPressed: () {
+            reloadTripsList();
+          },
+        ),
       ),
       child: SafeArea(
           child: Scaffold(
@@ -374,8 +465,7 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
                       },
                     ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height - 200,
+                  Expanded(
                     child: ListView.builder(
                       itemCount: selectedTrips.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -395,10 +485,10 @@ class _PassengerTripsPageState extends State<PassengerTripsPage> {
                             onTap: (){
                               if(_selectedSegment != Status.completed){
                                 Service.checkPlace(trip.id).then((result){
-                                  print(trip);
+                                  //print(trip);
                                   showTripDialog(trip, true);
                                 }).catchError((error){
-                                  print(trip);
+                                  //print(trip);
                                   showTripDialog(trip, false);
                                 });
                               }

@@ -89,12 +89,25 @@ class _LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.all(18),
             ),
             SizedBox(height: 36.0),
-            CupertinoButton.filled(
-              child: Text('Вход'),
-              padding: EdgeInsets.fromLTRB(96, 20, 96, 20),
-              onPressed: () {
-                login(loginTextController.text, passwordTextController.text);
-              },
+            Visibility(
+              visible: !Service.isLoading,
+              child: CupertinoButton.filled(
+                child: Text("Вход"),
+                padding: EdgeInsets.fromLTRB(96, 20, 96, 20),
+                onPressed: !Service.isLoading ? () {
+                  login(loginTextController.text, passwordTextController.text);
+                } : null,
+              ),
+            ),
+            Visibility(
+                visible: Service.isLoading,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(0, 6, 0, 6),
+                  alignment: Alignment.center,
+                  child: CupertinoActivityIndicator(
+                    radius: 24,
+                  ),
+                )
             ),
             SizedBox(height: 10.0),
             CupertinoButton(
@@ -114,8 +127,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void login(String username, String password) {
+    setState(() {
+      Service.isLoading = true;
+    });
     Service.login(username, password).then((result)
     {
+      setState(() {
+        Service.isLoading = false;
+      });
       SharedPrefs.saveUser(Service.currentUser!);
       if(Service.currentUser!.role == "passenger"){
         Navigator.of(context).push(CupertinoPageRoute(
@@ -132,6 +151,9 @@ class _LoginPageState extends State<LoginPage> {
         ));
       }
     }).catchError((err) {
+      setState(() {
+        Service.isLoading = false;
+      });
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {

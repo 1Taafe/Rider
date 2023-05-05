@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:rider/Pages/FindTripPage.dart';
 import 'package:rider/Pages/PassengerTripsPage.dart';
+import 'package:rider/Services/LocalDatabase.dart';
 import 'package:rider/Services/SharedPrefs.dart';
 
 import '../Services/Serivce.dart';
@@ -159,6 +160,7 @@ class _PassengerHomePageState extends State<PassengerHomePage> {
                         ),
                         onPressed: (){
                           SharedPrefs.clearUser();
+                          LocalDatabase.deleteAllData();
                           Navigator.of(context).pop();
                         }
                     ),
